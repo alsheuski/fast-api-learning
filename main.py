@@ -24,17 +24,23 @@ def create_hotel(title: str = Body(embed=True)):
 
 
 @app.put("/hotels/{hotel_id}")
-def replace_hotel(hotel_id: int, title: str, name: str):
+def replace_hotel(hotel_id: int, title: str = Body(), name: str = Body()):
     global hotels
     for hotel in hotels:
         if hotel["id"] == hotel_id:
-            hotel["title"] = (title,)
+            hotel["title"] = title
             hotel["name"] = name
             return {"status": "OK"}
 
 
-@app.patch("/hotels/{hotel_id}")
-def update_hotel(hotel_id: int, title: str | None = None, name: str | None = None):
+@app.patch(
+    "/hotels/{hotel_id}",
+    summary="Partial update of some hotel details",
+    description="Method can update title or name fields of exact hotel by hotel ID",
+)
+def update_hotel(
+    hotel_id: int, title: str | None = Body(None), name: str | None = Body(None)
+):
     global hotels
     for hotel in hotels:
         if hotel["id"] == hotel_id:
