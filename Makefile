@@ -10,3 +10,6 @@ migrations_make:
 
 migrations_migrate:
 	alembic upgrade head
+
+migrations_downgrade:
+	alembic downgrade $(rev)
