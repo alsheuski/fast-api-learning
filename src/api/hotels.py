@@ -1,7 +1,7 @@
 from fastapi import Body, Query, APIRouter
 from sqlalchemy import insert, select
 
-from models.hotels import HotelsOrm
+from src.repos.hotels import HotelsRepository
 from src.database import my_async_sessionmaker, engine
 from src.api.dependencies import PaginationDep
 from src.schemas.hotels import Hotel
@@ -19,6 +19,9 @@ async def get_hotels(
     page = pagination.page or 1
     limit = pagination.per_page
     offset = per_page * (page - 1)
+
+    async with my_async_sessionmaker() as session:
+        return await HotelsRepository(session).get_all()
 
     async with my_async_sessionmaker() as session:
         query = select(HotelsOrm)
