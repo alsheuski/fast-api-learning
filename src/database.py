@@ -5,8 +5,8 @@ from src.config import settings
 
 engine = create_async_engine(url=settings.DB_URL)
 
-sessionmaker = async_sessionmaker(bind=engine, expire_on_commit=False)
-session = sessionmaker()
+my_async_sessionmaker = async_sessionmaker(bind=engine, expire_on_commit=False)
+session = my_async_sessionmaker()
 
 
 class Base(DeclarativeBase):
