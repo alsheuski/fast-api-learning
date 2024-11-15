@@ -1,4 +1,6 @@
-from fastapi import Body, Query, APIRouter
+import json
+from dataclasses import fields
+from fastapi import Body, Query, APIRouter, responses
 from sqlalchemy import insert, select
 
 from src.repos.hotels import HotelsRepository
@@ -21,22 +23,7 @@ async def get_hotels(
     offset = per_page * (page - 1)
 
     async with my_async_sessionmaker() as session:
-        return await HotelsRepository(session).get_all()
-
-    async with my_async_sessionmaker() as session:
-        query = select(HotelsOrm)
-
-        if title:
-            query = query.filter(HotelsOrm.title.icontains(title))
-
-        if location:
-            query = query.filter(HotelsOrm.location.icontains(location))
-
-        query = query.limit(limit).offset(offset)
-
-        result = await session.execute(query)
-        hotels = result.scalars().all()
-        return hotels
+        return await HotelsRepository(session).get_all(title, location, limit, offset)
 
 
 @router.post("")
@@ -55,14 +42,16 @@ async def create_hotel(
     ),
 ):
     async with my_async_sessionmaker() as session:
-        add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
+        response = await HotelsRepository(session).create(
+            fields=hotel_data.model_dump()
+        )
 
-        print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True}))
-
-        await session.execute(add_hotel_stmt)
         await session.commit()
 
-        return {"status": "OK"}
+        return {
+            "status": "OK",
+            "data": {"id": response[0], "title": response[1], "location": response[2]},
+        }
 
 
 @router.put("/{hotel_id}")
