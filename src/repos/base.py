@@ -1,5 +1,7 @@
 from pydantic import BaseModel
-from sqlalchemy import select, insert, literal_column
+from sqlalchemy import select, insert, update, delete
+
+from helpers import print_sql
 
 
 class BaseRepository:
@@ -25,3 +27,25 @@ class BaseRepository:
 
         res = await self.session.execute(add_stmt)
         return res.scalars().one()
+
+    async def edit(self, data: BaseModel, **filter_by) -> None:
+        stmt = update(self.model)
+
+        for filter_key, value in filter_by.items():
+            if value is not None:
+                stmt = stmt.where(getattr(self.model, filter_key) == value)
+
+        print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
+        stmt = stmt.values(**data.model_dump())
+        await self.session.execute(stmt)
+
+    async def delete(self, **filter_by) -> None:
+        stmt = delete(self.model)
+
+        for filter_key, value in filter_by.items():
+            if value is not None:
+                stmt = stmt.where(getattr(self.model, filter_key) == value)
+
+        print_sql(stmt)
+        await self.session.execute(stmt)
