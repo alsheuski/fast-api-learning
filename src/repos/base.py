@@ -1,5 +1,6 @@
 from sqlalchemy import select, insert, update, delete
 from pydantic import BaseModel
+from sqlalchemy.orm import query
 
 from src.helpers import print_sql
 
@@ -9,6 +10,14 @@ class BaseRepository:
 
     def __init__(self, session):
         self.session = session
+
+    async def get(self, id):
+        if self.model:
+            query = select(self.model).where(getattr(self.model, "id") == id)
+            print_sql(query)
+            result = await self.session.execute(query)
+
+            return result.scalars().first()
 
     async def get_all(self):
         if self.model:
@@ -33,9 +42,15 @@ class BaseRepository:
             res = await self.session.execute(add_stmt)
             return res.scalars().one()
 
-    async def edit(self, data: BaseModel, **filter_by) -> None:
+    async def edit(
+        self, data: BaseModel, exclude_unset: bool = False, **filter_by
+    ) -> None:
         if self.model:
-            stmt = update(self.model).filter_by(**filter_by).values(**data.model_dump())
+            stmt = (
+                update(self.model)
+                .filter_by(**filter_by)
+                .values(**data.model_dump(exclude_unset=exclude_unset))
+            )
             await self.session.execute(stmt)
 
     async def delete(self, **filter_by) -> None:

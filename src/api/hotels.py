@@ -3,7 +3,7 @@ from fastapi import Body, Query, APIRouter
 from src.repos.hotels import HotelsRepository
 from src.database import my_async_sessionmaker
 from src.api.dependencies import PaginationDep
-from src.schemas.hotels import Hotel
+from src.schemas.hotels import Hotel, HotelPATCH
 
 router = APIRouter(prefix="/hotels", tags=["Hotels"])
 
@@ -21,6 +21,12 @@ async def get_hotels(
 
     async with my_async_sessionmaker() as session:
         return await HotelsRepository(session).get_all(title, location, limit, offset)
+
+
+@router.get("/{hotel_id}")
+async def get_hotel(hotel_id: int):
+    async with my_async_sessionmaker() as session:
+        return await HotelsRepository(session).get(id=hotel_id)
 
 
 @router.post("")
@@ -63,15 +69,14 @@ async def replace_hotel(hotel_id: int, hotel_data: Hotel):
     summary="Partial update of some hotel details",
     description="Method can update title or name fields of exact hotel by hotel ID",
 )
-def update_hotel(hotel_id: int, hotel_data: Hotel):
-    global hotels
-    for hotel in hotels:
-        if hotel["id"] == hotel_id:
-            if hotel_data.title is not None:
-                hotel["title"] = hotel_data.title
-            if hotel_data.name is not None:
-                hotel["name"] = hotel_data.name
-            return {"status": "OK"}
+async def update_hotel(hotel_id: int, hotel_data: HotelPATCH):
+    async with my_async_sessionmaker() as session:
+        await HotelsRepository(session).edit(
+            hotel_data, exclude_unset=True, id=hotel_id
+        )
+        await session.commit()
+
+        return {"status": "OK"}
 
 
 @router.delete("/{hotel_id}")
