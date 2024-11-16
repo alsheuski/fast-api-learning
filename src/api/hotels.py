@@ -1,10 +1,7 @@
-import json
-from dataclasses import fields
-from fastapi import Body, Query, APIRouter, responses
-from sqlalchemy import insert, select
+from fastapi import Body, Query, APIRouter
 
 from src.repos.hotels import HotelsRepository
-from src.database import my_async_sessionmaker, engine
+from src.database import my_async_sessionmaker
 from src.api.dependencies import PaginationDep
 from src.schemas.hotels import Hotel
 
@@ -52,18 +49,12 @@ async def create_hotel(
         }
 
 
-@router.put("")
-async def replace_hotel(
-    hotel_data: Hotel,
-    id: int | None = Query(None),
-    title: str | None = Query(None),
-    location: str | None = Query(None),
-):
+@router.put("/{hotel_id}")
+async def replace_hotel(hotel_id: int, hotel_data: Hotel):
     async with my_async_sessionmaker() as session:
-        await HotelsRepository(session).edit(
-            hotel_data, id=id, title=title, location=location
-        )
+        await HotelsRepository(session).edit(hotel_data, id=hotel_id)
         await session.commit()
+
         return {"status": "OK"}
 
 
@@ -83,14 +74,10 @@ def update_hotel(hotel_id: int, hotel_data: Hotel):
             return {"status": "OK"}
 
 
-@router.delete("")
-async def delete_hotel(
-    id: int | None = Query(None),
-    title: str | None = Query(None),
-    location: str | None = Query(None),
-):
+@router.delete("/{hotel_id}")
+async def delete_hotel(hotel_id: int):
     async with my_async_sessionmaker() as session:
-        await HotelsRepository(session).delete(id=id, title=title, location=location)
+        await HotelsRepository(session).delete(id=hotel_id)
         await session.commit()
 
         return {"status": "OK"}
