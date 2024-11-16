@@ -1,37 +1,36 @@
 from sqlalchemy import select, insert, update, delete
 from pydantic import BaseModel
-from sqlalchemy.orm import query
+from sqlalchemy.engine import result
 
+from schemas.hotels import Hotel
 from src.helpers import print_sql
 
 
 class BaseRepository:
     model = None
+    schema: BaseModel = None
 
     def __init__(self, session):
         self.session = session
 
-    async def get(self, id):
-        if self.model:
-            query = select(self.model).where(getattr(self.model, "id") == id)
-            print_sql(query)
-            result = await self.session.execute(query)
-
-            return result.scalars().first()
-
-    async def get_all(self):
+    async def get_all(self, *args, **kwargs):
         if self.model:
             query = select(self.model)
             result = await self.session.execute(query)
 
-            return result.scalars().all()
+            return [
+                self.schema.model_validate(model, from_attributes=True)
+                for model in result.scalars().all()
+            ]
 
     async def get_one_or_none(self, **filter_by):
         if self.model:
             query = select(self.model).filter_by(**filter_by)
             result = await self.session.execute(query)
 
-            return result.scalars().one_or_none()
+            obj = result.scalars().one_or_none()
+            if obj is not None:
+                return self.schema.model_validate(obj, from_attributes=True)
 
     async def create(self, data: BaseModel):
         if self.model:
@@ -40,7 +39,9 @@ class BaseRepository:
             )
 
             res = await self.session.execute(add_stmt)
-            return res.scalars().one()
+            model = res.scalars().one()
+
+            return self.schema.model_validate(model, from_attributes=True)
 
     async def edit(
         self, data: BaseModel, exclude_unset: bool = False, **filter_by
