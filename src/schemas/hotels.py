@@ -1,6 +1,15 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
-class Hotel(BaseModel):
-    title: str | None = None
-    location: str | None = None
+class HotelAdd(BaseModel):
+    title: str
+    location: str
+
+
+class Hotel(HotelAdd):
+    id: int
+
+
+class HotelPATCH(BaseModel):
+    title: str | None = Field(None)
+    location: str | None = Field(None)
