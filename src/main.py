@@ -6,12 +6,13 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from src.config import settings
 from src.api.hotels import router as hotels_router
+from src.api.users import router as users_router
 
 
 app = FastAPI()
 
+app.include_router(users_router)
 app.include_router(hotels_router)
 
 
