@@ -1,7 +1,9 @@
 from fastapi import HTTPException, Response, Request
 from fastapi.routing import APIRouter
+from sqlalchemy import except_
 
 
+from api.dependencies import UserIdDep
 from src.repos.users import UsersRepository
 from src.database import my_async_sessionmaker
 from src.schemas.users import UserAdd, UserRequestAdd
@@ -44,8 +46,15 @@ async def register_user(data: UserRequestAdd):
         return {"status": "OK"}
 
 
-@router.post("/only_auth")
-async def only_auth(request: Request):
-    access_token = request.cookies.get("access_token")
+@router.get("/me")
+async def get_me(user_id: UserIdDep):
+    async with my_async_sessionmaker() as session:
+        user = await UsersRepository(session).get_one_or_none(id=user_id)
+        return user
 
-    return {"access_token": access_token}
+
+@router.get("/logout")
+async def logout(response: Response):
+    response.delete_cookie('access_token')
+    return {"status": "OK"}
+
