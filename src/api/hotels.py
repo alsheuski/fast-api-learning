@@ -4,8 +4,10 @@ from src.repos.hotels import HotelsRepository
 from src.database import my_async_sessionmaker
 from src.api.dependencies import PaginationDep
 from src.schemas.hotels import Hotel, HotelAdd, HotelPATCH
+from src.api.rooms import router as room_router
 
 router = APIRouter(prefix="/hotels", tags=["Hotels"])
+router.include_router(room_router)
 
 
 @router.get("")
