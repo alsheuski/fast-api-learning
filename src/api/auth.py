@@ -34,6 +34,7 @@ async def register_user(db: DBDep, data: UserRequestAdd):
     new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
 
     await db.users.create(new_user_data)
+    await db.commit()
 
     return {"status": "OK"}
 

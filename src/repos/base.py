@@ -1,8 +1,6 @@
 from sqlalchemy import select, insert, update, delete
 from pydantic import BaseModel
 
-from helpers import print_sql
-
 
 class BaseRepository:
     model = None
@@ -10,7 +8,6 @@ class BaseRepository:
 
     def __init__(self, session):
         self.session = session
-
 
     async def get_filtered(self, **filter_by):
         if self.model:
@@ -39,7 +36,6 @@ class BaseRepository:
             add_stmt = (
                 insert(self.model).values(**data.model_dump()).returning(self.model)
             )
-            print_sql(add_stmt)
 
             res = await self.session.execute(add_stmt)
             model = res.scalars().one()

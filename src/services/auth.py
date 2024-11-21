@@ -30,7 +30,9 @@ class AuthService:
 
     def decode_token(self, token: str) -> Dict:
         try:
-            return jwt.decode( token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+            return jwt.decode(
+                token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            )
         except jwt.exceptions.DecodeError:
             raise HTTPException(status_code=401, detail="Invalid token")
 

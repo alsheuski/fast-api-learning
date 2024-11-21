@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from pydantic import EmailStr
 from sqlalchemy import select
 
@@ -14,6 +15,5 @@ class UsersRepository(BaseRepository):
         if self.model:
             query = select(self.model).filter_by(email=email)
             result = await self.session.execute(query)
-
             obj = result.scalars().one()
             return UserWithHashedPassword.model_validate(obj, from_attributes=True)

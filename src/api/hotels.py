@@ -1,11 +1,10 @@
 from fastapi import Body, Query, APIRouter
 
-from src.repos.hotels import HotelsRepository
-from src.database import my_async_sessionmaker
 from src.api.dependencies import DBDep, PaginationDep
 from src.schemas.hotels import Hotel, HotelAdd, HotelPATCH
 
 router = APIRouter(prefix="/hotels", tags=["Hotels"])
+
 
 @router.get("")
 async def get_hotels(
@@ -44,6 +43,7 @@ async def create_hotel(
     ),
 ):
     response = await db.hotels.create(data=hotel_data)
+    await db.commit()
 
     return {
         "status": "OK",
@@ -54,6 +54,7 @@ async def create_hotel(
 @router.put("/{hotel_id}")
 async def replace_hotel(db: DBDep, hotel_id: int, hotel_data: HotelAdd):
     await db.hotels.edit(hotel_data, id=hotel_id)
+    await db.commit()
 
     return {"status": "OK"}
 
@@ -64,9 +65,8 @@ async def replace_hotel(db: DBDep, hotel_id: int, hotel_data: HotelAdd):
     description="Method can update title or name fields of exact hotel by hotel ID",
 )
 async def update_hotel(db: DBDep, hotel_id: int, hotel_data: HotelPATCH):
-    await db.hotels.edit(
-        hotel_data, exclude_unset=True, id=hotel_id
-    )
+    await db.hotels.edit(hotel_data, exclude_unset=True, id=hotel_id)
+    await db.commit()
 
     return {"status": "OK"}
 
@@ -74,5 +74,6 @@ async def update_hotel(db: DBDep, hotel_id: int, hotel_data: HotelPATCH):
 @router.delete("/{hotel_id}")
 async def delete_hotel(hotel_id: int, db: DBDep):
     await db.hotels.delete(id=hotel_id)
+    await db.commit()
 
     return {"status": "OK"}
