@@ -6,7 +6,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from src.database import Base
 
 
-class BookinsOrm(Base):
+class BookingsOrm(Base):
     __tablename__ = "bookings"
 
     id: Mapped[int] = mapped_column(primary_key=True)

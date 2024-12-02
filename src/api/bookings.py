@@ -1,9 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 
 from src.api.dependencies import DBDep, UserIdDep
 from src.schemas.bookings import BookingAdd, BookingAddRequest
-from src.schemas.rooms import Room
 
 
 router = APIRouter(prefix="/booking", tags=["Booking"])
