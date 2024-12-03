@@ -1,6 +1,7 @@
 from datetime import date
 from fastapi import Body, APIRouter, Query
 
+from schemas.facilities import RoomFacilityAdd
 from src.api.dependencies import DBDep
 from src.schemas.rooms import RoomAdd, RoomAddRequest, RoomPatchRequest
 
@@ -37,6 +38,7 @@ async def create_room(
                     "description": "large room with two bedrooms",
                     "price": 10,
                     "quantity": 10,
+                    "facilities_ids": [],
                 },
             },
             "2": {
@@ -46,18 +48,25 @@ async def create_room(
                     "description": "VIP level of aparmtents",
                     "price": 100,
                     "quantity": 1,
+                    "facilities_ids": [],
                 },
             },
         }
     ),
 ):
     data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
-    response = await db.rooms.create(data=data)
+    room = await db.rooms.create(data=data)
+
+    rooms_facilities_data = [
+        RoomFacilityAdd(room_id=room.id, facility_id=f_id)
+        for f_id in room_data.facilities_ids
+    ]
+    await db.rooms_facilities.create_bulk(rooms_facilities_data)
     await db.commit()
 
     return {
         "status": "OK",
-        "data": response,
+        "data": room,
     }
 
 
