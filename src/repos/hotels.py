@@ -12,7 +12,15 @@ class HotelsRepository(BaseRepository):
     model = HotelsOrm
     schema = Hotel
 
-    async def get_filtered_by_time(self, date_from: date, date_to: date):
+    async def get_filtered_by_time(
+        self,
+        date_from: date,
+        date_to: date,
+        limit: int | None,
+        offset: int | None,
+        title: str | None,
+        location: str | None,
+    ):
         rooms_ids_to_get = rooms_ids_for_booking(date_from=date_from, date_to=date_to)
         hotels_ids = (
             select(RoomsOrm.hotel_id)
@@ -20,10 +28,7 @@ class HotelsRepository(BaseRepository):
             .filter(RoomsOrm.id.in_(rooms_ids_to_get))
         )
 
-        return await self.get_filtered(HotelsOrm.id.in_(hotels_ids))
-
-    async def get_all(self, title, location, limit, offset) -> list[Hotel]:
-        query = select(self.model)
+        query = select(self.model).filter(HotelsOrm.id.in_(hotels_ids))
 
         if title:
             query = query.filter(HotelsOrm.title.icontains(title))
