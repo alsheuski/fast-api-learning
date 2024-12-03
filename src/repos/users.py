@@ -2,8 +2,8 @@ from fastapi import HTTPException
 from pydantic import EmailStr
 from sqlalchemy import select
 
-from models.users import UsersOrm
-from schemas.users import User, UserWithHashedPassword
+from src.models.users import UsersOrm
+from src.schemas.users import User, UserWithHashedPassword
 from src.repos.base import BaseRepository
 
 
