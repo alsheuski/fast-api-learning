@@ -1,10 +1,13 @@
 from sqlalchemy import select, insert, update, delete
 from pydantic import BaseModel
 
+from src.repos.mappers.base import DataMapper
+
 
 class BaseRepository:
     model = None
-    schema: BaseModel = None
+    schema: BaseModel | None = None
+    mapper: DataMapper | None = None
 
     def __init__(self, session):
         self.session = session
@@ -15,7 +18,7 @@ class BaseRepository:
             result = await self.session.execute(query)
 
             return [
-                self.schema.model_validate(model, from_attributes=True)
+                self.mapper.map_to_domain_entity(model)
                 for model in result.scalars().all()
             ]
 
@@ -29,7 +32,7 @@ class BaseRepository:
 
             obj = result.scalars().one_or_none()
             if obj is not None:
-                return self.schema.model_validate(obj, from_attributes=True)
+                return self.mapper.map_to_domain_entity(obj)
 
     async def create(self, data: BaseModel):
         if self.model:
@@ -40,7 +43,7 @@ class BaseRepository:
             res = await self.session.execute(add_stmt)
             model = res.scalars().one()
 
-            return self.schema.model_validate(model, from_attributes=True)
+            return self.mapper.map_to_domain_entity(model)
 
     async def create_bulk(self, data: list[BaseModel]):
         if self.model:
