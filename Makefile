@@ -13,3 +13,6 @@ migrations_migrate:
 
 migrations_downgrade:
 	alembic downgrade $(rev)
+
+start_celery:
+	celery --app=src.tasks.celery_app:celery_instance worker -l INFO

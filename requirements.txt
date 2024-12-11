@@ -47,3 +47,5 @@ watchfiles==0.24.0
 websockets==14.1
 redis==5.2.1
 fastapi-cache2==0.2.2
+celery==5.4.0
+pillow==11.0.0
