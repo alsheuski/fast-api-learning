@@ -21,8 +21,11 @@ from src.api.images import router as images_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await redis_manager.connect()
-    FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
+    try:
+        await redis_manager.connect()
+        FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
+    except Exception as e:
+        print(f"Exception in lifespan: {e}")
     yield
     await redis_manager.close()
 

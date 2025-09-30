@@ -27,13 +27,24 @@ async def test_booking_crud(db: DBManager):
     assert added_booking
 
     # update
-    added_booking.price = 200
-    await db.bookings.edit(added_booking, id=added_booking.id)
+    booking_for_update = BookingAdd(
+        user_id=user.id,
+        room_id=room.id,
+        date_from=date(year=2025, month=9, day=12),
+        date_to=date(year=2025, month=9, day=22),
+        price=200,
+    )
+    await db.bookings.edit(booking_for_update, id=added_booking.id)
     await db.commit()
 
     updated_booking: Booking = await db.bookings.get_one_or_none(id=added_booking.id)
-    assert added_booking.price == updated_booking.price
+    assert updated_booking.price == 200
+    assert updated_booking.date_from == date(year=2025, month=9, day=12)
+    assert updated_booking.date_to == date(year=2025, month=9, day=22)
 
     # delete
     await db.bookings.delete(id=added_booking.id)
     await db.commit()
+
+    deleted_booking = await db.bookings.get_one_or_none(id=added_booking.id)
+    assert not deleted_booking
