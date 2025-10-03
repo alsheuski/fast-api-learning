@@ -30,13 +30,16 @@ async def login_user(db: DBDep, data: UserRequestAdd, response: Response):
 
 @router.post("/register")
 async def register_user(db: DBDep, data: UserRequestAdd):
-    hashed_password = auth.hash_password(data.password)
-    new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
+    try:
+        hashed_password = auth.hash_password(data.password)
+        new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
 
-    await db.users.create(new_user_data)
-    await db.commit()
+        await db.users.create(new_user_data)
+        await db.commit()
 
-    return {"status": "OK"}
+        return {"status": "OK"}
+    except Exception:
+        raise HTTPException(status_code=400)
 
 
 @router.get("/me")
