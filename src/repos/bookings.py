@@ -1,3 +1,4 @@
+from fastapi.exceptions import HTTPException
 from repos.mappers.mappers import BookingDatamapper
 from repos.utils import rooms_ids_for_booking
 from schemas.bookings import BookingAdd
@@ -21,4 +22,4 @@ class BookingRepository(BaseRepository):
             new_booking = await self.create(data)
             return new_booking
         else:
-            raise Exception
+            raise HTTPException(500)
