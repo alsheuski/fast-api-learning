@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
+from api import hotels
+from schemas.hotels import Hotel
 from src.api.dependencies import DBDep, UserIdDep
 from src.schemas.bookings import BookingAdd, BookingAddRequest
 
@@ -26,10 +28,15 @@ async def book_room(
     if not room:
         raise HTTPException(status_code=401, detail="Room not found")
 
+    hotel = await db.hotels.get_one_or_none(id=room.hotel_id)
+
+    if not hotel:
+        raise HTTPException(status_code=401, detail="Hotel not found")
+
     booking_data = BookingAdd(
         price=room.price, user_id=user_id, **booking_request_data.model_dump()
     )
-    booking = await db.bookings.create(data=booking_data)
+    booking = await db.bookings.add_booking(data=booking_data, hotel_id=hotel.id)
     await db.commit()
 
     return {"status": "OK", "data": booking}

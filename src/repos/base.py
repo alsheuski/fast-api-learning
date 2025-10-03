@@ -25,7 +25,7 @@ class BaseRepository:
     async def get_all(self):
         return await self.get_filtered()
 
-    async def get_one_or_none(self, **filter_by):
+    async def get_one_or_none(self, **filter_by) -> BaseModel | None:
         if self.model:
             query = select(self.model).filter_by(**filter_by)
             result = await self.session.execute(query)
