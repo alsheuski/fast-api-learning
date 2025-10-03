@@ -16,5 +16,5 @@ async def test_add_facility(ac: AsyncClient):
     res = response.json()
 
     assert isinstance(res, dict)
-    assert res["title"] == facility_title
+    assert res["data"]["title"] == facility_title
     assert "data" in res

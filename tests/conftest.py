@@ -1,7 +1,9 @@
 import json
-
 import pytest
-from httpx import ASGITransport, AsyncClient
+from unittest import mock
+from httpx import ASGITransport, AsyncClient, Response
+
+mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwarts: lambda f: f).start()
 
 from src.api.dependencies import get_db
 from src.config import settings
@@ -65,3 +67,12 @@ async def ac():
 @pytest.fixture(scope="session", autouse=True)
 async def test_register_root(ac, setup_database):
     await ac.post("/auth/register", json={"email": "test@test.com", "password": "1234"})
+
+
+@pytest.fixture(scope="session")
+async def authenticated_ac(test_register_root, ac):
+    await ac.post("auth/login", json={"email": "test@test.com", "password": "1234"})
+
+    assert ac.cookies["access_token"]
+
+    yield ac
