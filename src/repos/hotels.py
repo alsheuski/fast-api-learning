@@ -1,11 +1,9 @@
 from datetime import date
-from pydantic import BaseModel
 from sqlalchemy import select
 
 from src.repos.mappers.mappers import HotelDataMapper
 from src.models.rooms import RoomsOrm
 from src.repos.utils import rooms_ids_for_booking
-from src.schemas.hotels import Hotel
 from src.models.hotels import HotelsOrm
 from src.repos.base import BaseRepository
 

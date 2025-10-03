@@ -38,7 +38,8 @@ async def register_user(db: DBDep, data: UserRequestAdd):
         await db.commit()
 
         return {"status": "OK"}
-    except Exception:
+    except Exception as e:
+        print(f"Register error: {e}")
         raise HTTPException(status_code=400)
 
 

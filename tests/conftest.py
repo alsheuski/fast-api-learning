@@ -1,7 +1,8 @@
+# ruff: noqa: E402
 import json
 import pytest
 from unittest import mock
-from httpx import ASGITransport, AsyncClient, Response
+from httpx import ASGITransport, AsyncClient
 
 mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwarts: lambda f: f).start()
 
@@ -9,7 +10,7 @@ from src.api.dependencies import get_db
 from src.config import settings
 from src.database import Base, engine_null_pool, my_async_sessionmaker_null_pool
 from src.main import app
-from src.models import *
+from src.models import *  # noqa: F403
 from src.schemas.hotels import HotelAdd
 from src.schemas.rooms import RoomAdd
 from src.utils.db_manager import DBManager

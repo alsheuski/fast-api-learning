@@ -7,7 +7,7 @@ from repos.mappers.mappers import RoomDatamapper
 from src.repos.utils import rooms_ids_for_booking
 from src.models.rooms import RoomsOrm
 from src.repos.base import BaseRepository
-from src.schemas.rooms import Room, RoomWithRels
+from src.schemas.rooms import RoomWithRels
 
 
 class RoomsRepository(BaseRepository):

@@ -1,4 +1,3 @@
-from os.path import basename
 from time import sleep
 import os
 from PIL import Image

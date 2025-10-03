@@ -1,5 +1,4 @@
 from datetime import date
-from api import bookings
 from src.schemas.bookings import Booking, BookingAdd
 from utils.db_manager import DBManager
 

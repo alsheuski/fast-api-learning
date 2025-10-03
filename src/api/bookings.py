@@ -1,7 +1,5 @@
 from fastapi import APIRouter, HTTPException
 
-from api import hotels
-from schemas.hotels import Hotel
 from src.api.dependencies import DBDep, UserIdDep
 from src.schemas.bookings import BookingAdd, BookingAddRequest
 
